@@ -80,6 +80,22 @@ def edit():
         cursor.execute(update_sql, (studentName,gender,programme,state,contact,studyYear,method,resume_url,report_url))
         db_conn.commit()
         cursor.close()
+
+        
+        if resume:    
+            pdf_file_name_in_s3 = "Id-" + str(1) + "_resume_pdf"
+            s3 = boto3.resource('s3')
+            s3.Bucket(bucket).put_object(Key=pdf_file_name_in_s3, Body=resume)
+            bucket_location = boto3.client('s3').get_bucket_location(Bucket=bucket)
+            s3_location = (bucket_location['LocationConstraint'])
+            if s3_location is None:
+                s3_location = ''
+            else:
+                s3_location = '-' + s3_location
+            resume_url = "https://s3{0}.amazonaws.com/{1}/{2}".format(
+                s3_location,
+                bucket,
+                pdf_file_name_in_s3)
             
         cursor = db_conn.cursor()
         insert_sql = "INSERT INTO resume (StudentID,ResumeLink,ResumeStatus) VALUES (1, %s, 'Pending')"
