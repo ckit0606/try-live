@@ -44,6 +44,8 @@ def edit():
         method = request.form.get("method")
         resume = request.files.get("resume")
         report = request.files.get("report")
+        status = 'Pending'
+        studentID = 1
 
         if resume:    
             pdf_file_name_in_s3 = "Id-" + str(1) + "_resume_pdf"
@@ -98,8 +100,8 @@ def edit():
                 pdf_file_name_in_s3)
             
         cursor = db_conn.cursor()
-        insert_sql = "INSERT INTO resume (StudentID,ResumeLink,ResumeStatus) VALUES (1, %s, 'Pending')"
-        cursor.execute(insert_sql, (resume_url))
+        insert_sql = "INSERT INTO resume (StudentID,ResumeLink,ResumeStatus) VALUES (%s, %s, %s)"
+        cursor.execute(insert_sql, (studentID,resume_url,status))
         db_conn.commit()
         cursor.close()
 
